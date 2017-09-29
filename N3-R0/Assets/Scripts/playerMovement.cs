@@ -4,12 +4,46 @@ using UnityEngine;
 
 public class playerMovement : MonoBehaviour {
 
+
+
+    private static playerMovement instance;
+
+    public static playerMovement Instance;
+    {
+        get
+        {
+            if (instance == null)
+            {
+                instance = GameObject.FindObjectofType<Player>();
+            }
+            return instance;
+        }
+    }
+
+    private Animator myAnimator;
+
+    [SerializeField]
+    private Transform bulletPos;
+
+
+
     private RigidBody2D myRigidbody;
 
     [SerializedField]
     private float movementSpeed;
 
     private bool faceingRight;
+
+    private bool attack;
+
+    [SerializeField]
+    private GameObject gunPrefab;
+
+    public Rigidbody2D MyRigidBody { get; set; }
+
+    public bool Attack { get; set; }
+
+
 
 
 	// Use this for initialization
@@ -20,6 +54,11 @@ public class playerMovement : MonoBehaviour {
 
 	}
 	
+    void Update()
+    {
+    HandleInput();
+    }
+
 	// Update is called once per frame
 	void FixedUpdate () 
     {
@@ -29,14 +68,18 @@ public class playerMovement : MonoBehaviour {
         HandleMovement();
 
         Flip(horizontal);
+
+        HandleAttacks();
+
+        ResetValues();
 	}
 
     private void HandleMovement(float horizontal)
     {
-
-
-        myRigidbody.velocity = new Vector2(horizontal * movementSpeed, myRigidbody.velocity.y);
-
+    if (!this.myAnimator.GetCurrentAnimatorsStateInfo(0).IsTag("Attack"))
+        {
+            myRigidbody.velocity = new Vector2(horizontal * movementSpeed, myRigidbody.velocity.y);
+        }
 
 
     }
@@ -54,6 +97,34 @@ public class playerMovement : MonoBehaviour {
 
             transform.localScale = theScale;
         }
+
+    }
+
+    private void HandleAttacks()
+    {
+        if (attack && (!this.myAnimator.GetCurrentAnimatorsStateInfo(0).IsTag("Attack"))
+        {
+        myAnimator.SetTrigger("attack");
+        myRigidbody.velocity = Vector2.zero;
+        }
+
+
+    }
+
+    private void HandleInput()
+    {
+
+        if (Input.GetKeyDown(KeyCode.LeftShift))
+        {
+        attack = true;
+        }
+        
+    }
+
+    private void ResetValues()
+    {
+
+    attack = false;
 
     }
 }
